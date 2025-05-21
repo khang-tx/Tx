@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Game Tài Xỉu Có Cược</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #222;
+      color: white;
+      text-align: center;
+      padding: 40px;
+    }
+    h1 {
+      color: #00ffcc;
+      margin-bottom: 20px;
+    }
+    .dice {
+      font-size: 60px;
+      margin: 10px;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      margin: 15px 0;
+      cursor: pointer;
+      background: #00ffcc;
+      border: none;
+      border-radius: 8px;
+      color: #222;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #00b399;
+    }
+    .choice {
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    .bet-input {
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+    input[type=number] {
+      padding: 10px;
+      font-size: 16px;
+      width: 180px;
+      margin-top: 8px;
+      border-radius: 5px;
+      border: none;
+      text-align: center;
+    }
+    #balance {
+      margin-top: 15px;
+      font-size: 20px;
+    }
+    #result {
+      margin-top: 25px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Game Tài Xỉu Có Cược</h1>
+
+  <div class="choice">
+    <label>
+      <input type="radio" name="bet" value="tai" checked />
+      Chọn Tài (11–17)
+    </label>
+    <label style="margin-left: 30px;">
+      <input type="radio" name="bet" value="xiu" />
+      Chọn Xỉu (4–10)
+    </label>
+  </div>
+
+  <div class="bet-input">
+    <label for="betAmount">Số tiền cược (VNĐ):</label><br />
+    <input type="number" id="betAmount" value="100000" min="1000" step="1000" />
+  </div>
+
+  <div id="balance">
+    Số dư: <strong id="money">1,000,000</strong> VNĐ
+  </div>
+
+  <div id="dice-container" style="margin-top: 30px;">
+    <span class="dice" id="dice1">⚀</span>
+    <span class="dice" id="dice2">⚀</span>
+    <span class="dice" id="dice3">⚀</span>
+  </div>
+
+  <button onclick="rollDice()">Quay Xúc Xắc</button>
+
+  <div id="result"></div>
+
+  <script>
+    let currentMoney = 1000000;
+
+    function formatMoney(num) {
+      return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function rollDice() {
+      const betInput = document.getElementById("betAmount");
+      let betAmount = parseInt(betInput.value);
+
+      if (isNaN(betAmount) || betAmount <= 0) {
+        alert("Vui lòng nhập số tiền cược hợp lệ!");
+        return;
+      }
+
+      if (betAmount > currentMoney) {
+        alert("Bạn không đủ tiền cược!");
+        return;
+      }
+
+      const dice1 = Math.floor(Math.random() * 6) + 1;
+      const dice2 = Math.floor(Math.random() * 6) + 1;
+      const dice3 = Math.floor(Math.random() * 6) + 1;
+      const total = dice1 + dice2 + dice3;
+
+      const diceIcons = ["", "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+      document.getElementById("dice1").textContent = diceIcons[dice1];
+      document.getElementById("dice2").textContent = diceIcons[dice2];
+      document.getElementById("dice3").textContent = diceIcons[dice3];
+
+      const choice = document.querySelector('input[name="bet"]:checked').value;
+      let outcome = "";
+      if (total >= 4 && total <= 10) {
+        outcome = "xiu";
+      } else if (total >= 11 && total <= 17) {
+        outcome = "tai";
+      }
+
+      let resultText = `Tổng: ${total} → ${outcome === "tai" ? "Tài" : "Xỉu"}.<br>`;
+
+      if (choice === outcome) {
+        currentMoney += betAmount;
+        resultText += `<span style="color:#4CAF50">Bạn thắng ${formatMoney(betAmount)} VNĐ!</span>`;
+      } else {
+        currentMoney -= betAmount;
+        resultText += `<span style="color:#f44336">Bạn thua ${formatMoney(betAmount)} VNĐ!</span>`;
+      }
+
+      document.getElementById("result").innerHTML = resultText;
+      document.getElementById("money").textContent = formatMoney(currentMoney);
+
+      if (currentMoney <= 0) {
+        alert("Bạn đã hết tiền! Trò chơi kết thúc.");
+        currentMoney = 1000000;
+        document.getElementById("money").textContent = formatMoney(currentMoney);
+      }
+    }
+  </script>
+</body>
+</html>
